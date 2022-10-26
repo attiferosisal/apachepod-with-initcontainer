@@ -1,0 +1,16 @@
+repoServer:
+  extraVolumeMounts:
+    - name: configfile
+      mountPath: /app/config/ocicli
+  extraVolumes:
+    - name: configfile
+      emptyDir: {}
+  initContainers:
+    - name: init-ocicli
+      image: curlimages/curl
+      command: ['sh', '-c']
+      args:
+        - "curl https://github.com/attiferosisal/apachepod-with-initcontainer/blob/master/values.yaml -o /custom-tools/values.yaml"
+      volumeMounts:
+        - name: configfile
+          mountPath: /custom-tools
