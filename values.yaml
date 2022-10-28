@@ -1,16 +1,28 @@
-repoServer:
-  extraVolumeMounts:
-    - name: configfile
-      mountPath: /app/config/ocicli
-  extraVolumes:
-    - name: configfile
-      emptyDir: {}
-  initContainers:
-    - name: init-ocicli
-      image: curlimages/curl
-      command: ['sh', '-c']
-      args:
-        - "curl https://github.com/attiferosisal/apachepod-with-initcontainer/blob/master/values.yaml -o /custom-tools/values.yaml"
-      volumeMounts:
-        - name: configfile
-          mountPath: /custom-tools
+extraVolumeMounts:
+  - name: configfile
+    mountPath: /app/config
+extraVolumes:
+  - name: gitfile
+    emptyDir: {}
+  - name: configfile
+    emptyDir: {}
+initContainers:
+  - name: init-clone-repo
+    imagePullPolicy: Always
+    image: alpine/git
+    args:
+      - clone
+      - https://github.com/attiferosisal/apachepod-with-initcontainer.git
+      - /gitfile
+    volumeMounts:
+      - name: gitfile
+        mountPath: /gitfile
+  - name: init-copy-file
+    imagePullPolicy: Always
+    image: alpine
+    command: [ "/bin/sh","-c", "cp /gitfile/* /configfile/" ]
+    volumeMounts:
+      - name: gitfile
+        mountPath: /gitfile
+      - name: configfile
+        mountPath: /configfile
